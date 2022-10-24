@@ -53,6 +53,21 @@ def create_customer(customer):
     # Return the dictionary with `id` property added
     return customer
 
+def update_customer(id, new_customer):
+    """_summary_
+
+    Args:
+        id (_type_): _description_
+        new_animal (_type_): _description_
+    """
+    # Iterate the CUSTOMERS list, but use enumerate() so that
+    # you can access the index value of each item.
+    for index, customer in enumerate(CUSTOMERS):
+        if customer["id"] == id:
+            # Found the customer. Update the value.
+            CUSTOMERS[index] = new_customer
+            break
+
 def delete_customer(id):
     """_summary_
 
