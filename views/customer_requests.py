@@ -47,7 +47,7 @@ def get_all_customers():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # Customer class above.
-            customer = Customer(row['id'], row['name'], row['address'])
+            customer = Customer(row['id'], row['name'])
 
             customers.append(customer.__dict__)
 
@@ -78,7 +78,7 @@ def get_single_customer(id):
         data = db_cursor.fetchone()
 
         # Create an customer instance from the current row
-        customer = Customer(data['id'], data['name'], data['address'])
+        customer = Customer(data['id'], data['name'])
 
         return json.dumps(customer.__dict__)
 
