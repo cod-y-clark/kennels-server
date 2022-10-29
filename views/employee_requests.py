@@ -13,6 +13,7 @@ EMPLOYEES = [
     }
 ]
 
+
 def get_all_employees():
     """_summary_
     """
@@ -27,7 +28,9 @@ def get_all_employees():
         db_cursor.execute("""
         SELECT
             e.id,
-            e.name
+            e.name,
+            e.address,
+            e.location_id
         FROM employee e
         """)
 
@@ -44,12 +47,13 @@ def get_all_employees():
             # Note that the database fields are specified in
             # exact order of the parameters defined in the
             # Employee class above.
-            employee = Employee(row['id'], row['name'])
+            employee = Employee(row['id'], row['name'], row['address'], row['location_id'])
 
             employees.append(employee.__dict__)
 
     # Use `json` package to properly serialize list as JSON
     return json.dumps(employees)
+
 
 def get_single_employee(id):
     """_summary_
@@ -66,28 +70,52 @@ def get_single_employee(id):
         db_cursor.execute("""
         SELECT
             e.id,
-            e.name
+            e.name,
+            e.address,
+            e.location_id
         FROM employee e
         WHERE e.id = ?
-        """, ( id, ))
+        """, (id, ))
 
         # Load the single result into memory
         data = db_cursor.fetchone()
 
         # Create an employee instance from the current row
-        employee = Employee(data['id'], data['name'])
+        employee = Employee(data['id'], data['name'],
+                            data['address'], data['location_id'])
 
         return json.dumps(employee.__dict__)
 
+
+def get_employee_by_location(location):
+    """get employees by location"""
+    with sqlite3.connect("./kennel.sqlite3") as conn:
+        conn.row_factory = sqlite3.Row
+        db_cursor = conn.cursor()
+
+        db_cursor.execute("""
+        select
+            e.id,
+            e.name,
+            e.address,
+            e.location_id
+        from Employee e
+        WHERE e.location_id = ?
+        """, (location, ))
+
+        employees = []
+        dataset = db_cursor.fetchall()
+
+        for row in dataset:
+            employee = Employee(
+                row['id'], row['name'], row['address'], row['location_id'])
+            employees.append(employee.__dict__)
+
+    return json.dumps(employees)
+
+
 def create_employee(employee):
-    """_summary_
-
-    Args:
-        employee (_type_): _description_
-
-    Returns:
-        _type_: _description_
-    """
+    """creates employee from dict repr sent by client"""
     # Get the id value of the last employee in the list
     max_id = EMPLOYEES[-1]["id"]
 
@@ -103,6 +131,7 @@ def create_employee(employee):
     # Return the dictionary with `id` property added
     return employee
 
+
 def update_employee(id, new_employee):
     """_summary_
 
@@ -117,6 +146,7 @@ def update_employee(id, new_employee):
             # Found the employee. Update the value.
             EMPLOYEES[index] = new_employee
             break
+
 
 def delete_employee(id):
     """_summary_
